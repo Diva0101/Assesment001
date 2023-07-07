@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Teacher Management System</title>
+  <style>
+    h1 {
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+
+    th, td {
+      padding: 8px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+
+    th {
+      background-color: #f2f2f2;
+      font-weight: bold;
+    }
+
+    form {
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Teacher Management System</h1>
+
+  <form id="addTeacherForm">
+    <label for="teacherName">Teacher's Name:</label>
+    <input type="text" id="teacherName" required>
+    <button type="submit">Save</button>
+  </form>
+
+  <table id="teachersTable">
+    <thead>
+      <tr>
+        <th>Teacher's Name</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script>  
+
+    function fetchTeachers() {
+    fetch('https://localhost:7216/api/Teacher')
+    .then(response => response.json())
+    .then(data => {
+      const tbody = document.getElementById('teachersTable').getElementsByTagName('tbody')[0];
+      tbody.innerHTML = '';
+
+      data.forEach(teacherName => {
+        const row = document.createElement('tr');
+        const nameCell = document.createElement('td');
+        nameCell.textContent = teacherName;
+        row.appendChild(nameCell);
+        tbody.appendChild(row);
+      });
+    })
+    .catch(error => console.error('Error:', error));
+    }
+
+    
+    function saveTeacher(event) {
+      event.preventDefault();
+      const teacherName = document.getElementById('teacherName').value;
+
+      fetch('https://localhost:7216/api/Teacher', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ name: teacherName })
+      })
+        .then(response => {
+          if (response.ok) {
+            document.getElementById('teacherName').value = '';
+            fetchTeachers();
+          } else {
+            console.error('Error:', response.statusText);
+          }
+        })
+        .catch(error => console.error('Error:', error));
+    }
+    
+    document.getElementById('addTeacherForm').addEventListener('submit', saveTeacher);
+    
+    fetchTeachers();
+  </script>
+</body>
+</html>
